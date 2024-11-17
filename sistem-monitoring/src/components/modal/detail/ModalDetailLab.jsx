@@ -1,8 +1,33 @@
-import PropTypes from "prop-types"; // Import PropTypes
+import { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { BsGrid } from "react-icons/bs";
 import { MdOutlineCalendarMonth } from "react-icons/md";
+import axios from "axios";
 
-const ModalDetailHasilLab = ({ isOpen, onClose, product }) => {
+const ModalDetailHasilLab = ({ isOpen, onClose, id }) => {
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (isOpen && id) {
+      setLoading(true);
+      axios
+        .get(`http://localhost:3000/DetailLab/${id}`)
+        .then((response) => {
+          const data = response.data.data; // Mengambil data dari array 'data'
+          const selectedProduct = data.find((item) => item.id === id); // Mencari item berdasarkan ID
+          setProduct(selectedProduct); // Menyimpan produk yang sesuai
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching product data:", error);
+          setProduct(null);
+          setLoading(false);
+        });
+    }
+  }, [isOpen, id]);
+  
+
   if (!isOpen) return null;
 
   return (
@@ -18,35 +43,41 @@ const ModalDetailHasilLab = ({ isOpen, onClose, product }) => {
           </div>
           <div className="flex items-center gap-1 font-bold">
             <MdOutlineCalendarMonth className="text-2xl" />
-            {product.tanggal}
+            {product?.tanggal || "Tidak tersedia"}
           </div>
         </div>
 
-        <div className="border border-zinc-100 rounded-lg p-4 text-zinc-100">
-          <div className="grid grid-cols-4 gap-3">
-            {[
-              { label: "Nama Sampel", value: product.name },
-              { label: "Gr", value: product.gr },
-              { label: "Cm", value: product.cm },
-              { label: "0`", value: product.nol },
-              { label: "Gr", value: product.gr2 },
-              { label: "Cm", value: product.cm2 },
-              { label: "40`", value: product.puluh4 },
-              { label: "Impurity", value: product.impurity },
-              { label: "Filth", value: product.filth },
-              { label: "Temp", value: product.temp },
-              { label: "pH", value: product.ph },
-              { label: "Moisture", value: product.moisture },
-              { label: "Whiteness", value: product.whitness },
-              { label: "Grade", value: product.grade },
-            ].map((item, index) => (
-              <div key={index}>
-                <label className="font-bold block">{item.label}:</label>
-                <p>{item.value || "N/A"}</p>
-              </div>
-            ))}
+        {loading ? (
+          <p>Loading...</p>
+        ) : product ? (
+          <div className="border border-zinc-100 rounded-lg p-4 text-zinc-100">
+            <div className="grid grid-cols-4 gap-3">
+              {[
+                { label: "Nama Sampel", value: product.nama_ikan },
+                { label: "Gr", value: product.gr },
+                { label: "Cm", value: product.cm },
+                { label: "0`", value: product.nol },
+                { label: "Gr 2", value: product.gr2 },
+                { label: "Cm 2", value: product.cm2 },
+                { label: "40`", value: product.puluh4 },
+                { label: "Impurity", value: product.impurity },
+                { label: "Filth", value: product.filth },
+                { label: "Temp", value: product.temp },
+                { label: "pH", value: product.ph },
+                { label: "Moisture", value: product.moisture },
+                { label: "Whiteness", value: product.whitness },
+                { label: "Grade", value: product.grade },
+              ].map((item, index) => (
+                <div key={index}>
+                  <label className="font-bold block">{item.label}:</label>
+                  <p>{item.value || "N/A"}</p>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        ) : (
+          <p>Produk tidak ditemukan</p>
+        )}
 
         <button
           onClick={onClose}
@@ -61,24 +92,7 @@ const ModalDetailHasilLab = ({ isOpen, onClose, product }) => {
 ModalDetailHasilLab.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
-  product: PropTypes.shape({
-    id: PropTypes.number.isRequired,
-    name: PropTypes.string.isRequired,
-    tanggal: PropTypes.string.isRequired,
-    gr: PropTypes.number,
-    cm: PropTypes.number,
-    nol: PropTypes.number,
-    gr2: PropTypes.number,
-    cm2: PropTypes.number,
-    puluh4: PropTypes.number,
-    impurity: PropTypes.number,
-    filth: PropTypes.number,
-    temp: PropTypes.number,
-    ph: PropTypes.number,
-    moisture: PropTypes.number,
-    whitness: PropTypes.number,
-    grade: PropTypes.string,
-  }),
+  id: PropTypes.number.isRequired, 
 };
 
 export default ModalDetailHasilLab;

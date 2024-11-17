@@ -8,7 +8,8 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
 import { useFetchData } from "../../fitures/FetchBarangMasuk";
 import ModalEditBarangMasuk from "../modal/edit/ModalEditBarangMasuk";
-import ModalHapusBarangMasuk from "../modal/hapus/ModalHapusBarangMasuk";
+import { useDeleteProduct } from "../../fitures/UseDeleteBarangMasuk";
+import ModalHapusProduk from "../modal/hapus/ModalHapusBarangMasuk";
 import ModalDetailBarangMasuk from "../modal/detail/ModalDetailBarangMasuk";
 import ModalImportExcelBarangMasuk from "../modal/import excel/ModalImportExcelBarangMasuk";
 import { Tooltip } from "react-tooltip";
@@ -20,8 +21,9 @@ const TableBarangMasuk = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
+  const deleteProduct = useDeleteProduct();
 
   const handleImportExcel = (file) => {
     console.log("File Excel yang diimpor:", file);
@@ -37,8 +39,8 @@ const TableBarangMasuk = () => {
       bodyClassName: "flex items-center",
     });
   };
-  const { data = [] } = useFetchData();
-  
+  const { data = [], refetch: refetchProducts } = useFetchData();
+
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
   const currentData = data.slice(
@@ -61,10 +63,20 @@ const TableBarangMasuk = () => {
   };
   const openDetailModal = (product) => {
     if (product?.id) {
-      setSelectedDetailProduct(product);
+      setSelectedId(product.id);
       setDetailModalOpen(true);
     } else {
       console.error("Product ID is missing");
+      toast.error("Error: Unable to load product details", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        className: "bg-zinc-900 text-white",
+      });
     }
   };
   const handleEditSave = (updatedProduct) => {
@@ -83,20 +95,15 @@ const TableBarangMasuk = () => {
     setEditModalOpen(false);
   };
 
-  const handleDelete = () => {
-    console.log("Produk telah dihapus:", selectedProduct);
-    toast.success(`${selectedProduct.name} Berhasil Dihapus!`, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      className: "bg-zinc-900 text-white",
-      bodyClassName: "flex items-center",
-    });
-    setDeleteModalOpen(false);
+  const handleDelete = async (productId) => {
+    try {
+      await deleteProduct.mutateAsync(productId);
+      setDeleteModalOpen(false);
+      refetchProducts(); 
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Gagal menghapus produk. Silakan coba lagi.');
+    }
   };
 
   const exportToExcel = () => {
@@ -150,13 +157,14 @@ const TableBarangMasuk = () => {
                     <BsPencil className="text-xl" />
                   </button>
                   <button
-                    data-tooltip-id="btnTooltip"
-                    data-tooltip-content="Delete"
-                    onClick={() => openDeleteModal(data)}
-                    className="text-red-600 hover:text-red-200"
-                    aria-label="Delete">
-                    <BsTrash className="text-xl" />
-                  </button>
+              data-tooltip-id="btnTooltip"
+              data-tooltip-content="Delete"
+              className="text-red-600 hover:text-red-200"
+              aria-label="Delete"
+              onClick={() => openDeleteModal(data)}
+            >
+              <BsTrash className="text-xl" />
+            </button>
                   <button
                     data-tooltip-id="btnTooltip"
                     data-tooltip-content="Detail"
@@ -242,21 +250,21 @@ const TableBarangMasuk = () => {
           onSave={handleEditSave}
         />
       )}
-      {selectedProduct && (
-        <ModalHapusBarangMasuk
+       {selectedProduct && (
+        <ModalHapusProduk
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           product={selectedProduct}
-          onDelete={handleDelete}
+          onDelete={() => handleDelete(selectedProduct.id)}
         />
       )}
-      {selectedDetailProduct && (
-        <ModalDetailBarangMasuk
-          isOpen={detailModalOpen}
-          onClose={() => setDetailModalOpen(false)}
-          product={selectedDetailProduct}
-        />
-      )}
+     {selectedId && (
+  <ModalDetailBarangMasuk
+    isOpen={detailModalOpen}
+    onClose={() => setDetailModalOpen(false)}
+    id={selectedId} 
+  />
+)}
       <ModalImportExcelBarangMasuk
         isOpen={importModalOpen}
         onClose={() => setImportModalOpen(false)}

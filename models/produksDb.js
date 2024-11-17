@@ -19,10 +19,16 @@ const patchProdukDb = (nama_product,kode_barang,id) => {
     return db.execute(query,value)
 }
 
-const deleteProdukDb = (id) => {
-    const query = `DELETE FROM nama_products WHERE id = ?`
-    const value = [id]
-        return db.execute(query,value)
+const deleteProdukDb =async (id) => {
+    try {
+        await db.query("SET FOREIGN_KEY_CHECKS = 0");
+        const query = "DELETE FROM nama_products WHERE id = ?";
+        const result = await db.execute(query, [id]);
+        await db.query("SET FOREIGN_KEY_CHECKS = 1");
+        return result;
+    } catch (error) {
+        throw error;
+    }
 }
 
 

@@ -11,7 +11,7 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
         className="fixed inset-0 bg-zinc-950 opacity-50"
         onClick={onClose}></div>
 
-      <div className="bg-zinc-900 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] z-50 overflow-auto ">
+      <div className="bg-zinc-900 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] z-50 overflow-auto">
         <div className="flex items-center justify-between mb-6 text-zinc-100">
           <div className="flex items-center gap-2">
             <BsGrid className="text-2xl" />
@@ -19,7 +19,7 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
           </div>
           <div className="flex items-center gap-1 font-bold text-lg">
             <MdOutlineCalendarMonth className="text-2xl" />
-            <span>{product.tanggal}</span>
+            <span>{product?.tanggal || 'Tanggal Tidak Tersedia'}</span>
           </div>
         </div>
 
@@ -27,15 +27,15 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
           <div className="grid grid-cols-3 gap-4">
             <div>
               <label className="font-bold block mb-1">Nama Produk :</label>
-              <p className="text-sm text-gray-300">{product.name}</p>
+              <p className="text-sm text-gray-300">{product?.name || 'Nama Tidak Tersedia'}</p>
             </div>
             <div>
               <label className="font-bold block mb-1">Jam :</label>
-              <p className="text-sm text-gray-300">{product.jam}</p>
+              <p className="text-sm text-gray-300">{product?.jam || 'Jam Tidak Tersedia'}</p>
             </div>
             <div>
               <label className="font-bold block mb-1">Remark :</label>
-              <p className="text-sm text-gray-300">{product.remark}</p>
+              <p className="text-sm text-gray-300">{product?.remark || 'Remark Tidak Tersedia'}</p>
             </div>
 
             <div className="col-span-3 border-t border-zinc-600 pt-4 mt-2 text-gray-300">
@@ -45,13 +45,13 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Receiving</label>
                   <p className="block text-sm">
-                    Organoleptik : <span>{product.receiving.organoleptik}</span>
+                    Organoleptik: <span>{product?.receiving?.organoleptik || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Temp of Fish : <span>{product.receiving.thr}</span>
+                    Temp of Fish: <span>{product?.receiving?.thr || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Reject : <span>{product.receiving.rej}</span>
+                    Reject: <span>{product?.receiving?.rej || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -59,7 +59,7 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Deboning</label>
                   <p className="block text-sm">
-                    Temp of Fish : <span>{product.deboning.dfish}</span>
+                    Temp of Fish: <span>{product?.deboning?.dfish || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -67,17 +67,15 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Washing I</label>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.wash.tpwash}</span>
+                    Temp of Product: <span>{product?.wash?.tpwash || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
                 {/* Meat Separating */}
                 <div>
-                  <label className="font-bold block mb-1">
-                    Meat Separating
-                  </label>
+                  <label className="font-bold block mb-1">Meat Separating</label>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.meat_spr.tpspr}</span>
+                    Temp of Product: <span>{product?.meat_spr?.tpspr || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -85,10 +83,10 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Leaching</label>
                   <p className="block text-sm">
-                    pH : <span>{product.leaching.ph}</span>
+                    pH: <span>{product?.leaching?.ph || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.leaching.tpl}</span>
+                    Temp of Product: <span>{product?.leaching?.tpl || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -96,7 +94,7 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Refinery</label>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.refinery.tpr}</span>
+                    Temp of Product: <span>{product?.refinery?.tpr || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -104,13 +102,13 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Mixing</label>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.mixing.tpm}</span>
+                    Temp of Product: <span>{product?.mixing?.tpm || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Bad Smell : <span>{product.mixing.bds}</span>
+                    Bad Smell: <span>{product?.mixing?.bds || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Bad Colour : <span>{product.mixing.bdc}</span>
+                    Bad Colour: <span>{product?.mixing?.bdc || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -118,13 +116,13 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Forming</label>
                   <p className="block text-sm">
-                    Moisture : <span>{product.forming.mois}</span>
+                    Moisture: <span>{product?.forming?.mois || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.forming.top}</span>
+                    Temp of Product: <span>{product?.forming?.top || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Foreign Material : <span>{product.forming.rem}</span>
+                    Foreign Material: <span>{product?.forming?.rem || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -132,10 +130,10 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Freezing</label>
                   <p className="block text-sm">
-                    Temp of CPF : <span>{product.freezing.tpcf}</span>
+                    Temp of CPF: <span>{product?.freezing?.tpcf || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Temp of Product : <span>{product.freezing.tpf}</span>
+                    Temp of Product: <span>{product?.freezing?.tpf || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -143,13 +141,13 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Packing</label>
                   <p className="block text-sm">
-                    Metal Calibration : <span>{product.packing.mtl}</span>
+                    Metal Calibration: <span>{product?.packing?.mtl || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Metal Inclusion/Reject : <span>{product.packing.mir}</span>
+                    Metal Inclusion/Reject: <span>{product?.packing?.mir || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Labeling : <span>{product.packing.leb}</span>
+                    Labeling: <span>{product?.packing?.leb || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -157,16 +155,16 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Storing</label>
                   <p className="block text-sm">
-                    Temp of Anteroom : <span>{product.storing.atr}</span>
+                    Temp of Anteroom: <span>{product?.storing?.atr || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Temp of CSR 1 : <span>{product.storing.tcsr1}</span>
+                    Temp of CSR 1: <span>{product?.storing?.tcsr1 || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Temp of CSR 2 : <span>{product.storing.tcsr2}</span>
+                    Temp of CSR 2: <span>{product?.storing?.tcsr2 || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Condensation : <span>{product.storing.cond}</span>
+                    Condensation: <span>{product?.storing?.cond || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
 
@@ -174,13 +172,13 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
                 <div>
                   <label className="font-bold block mb-1">Stuffing</label>
                   <p className="block text-sm">
-                    Container Check : <span>{product.stuffing.conchek}</span>
+                    Container Check: <span>{product?.stuffing?.conchek || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Quality : <span>{product.stuffing.quality}</span>
+                    Quality: <span>{product?.stuffing?.quality || 'Data tidak tersedia'}</span>
                   </p>
                   <p className="block text-sm">
-                    Broken : <span>{product.stuffing.brok}</span>
+                    Broken: <span>{product?.stuffing?.brok || 'Data tidak tersedia'}</span>
                   </p>
                 </div>
               </div>
@@ -190,8 +188,8 @@ const ModalDetailProses = ({ isOpen, onClose, product }) => {
 
         <button
           onClick={onClose}
-          className="mt-4 px-4 py-2 bg-red-500 hover:bg-red-600 transition-colors duration-200 text-white font-bold rounded">
-          Tutup
+          className="mt-4 px-4 py-2 bg-red-600 text-white rounded-md">
+          Close
         </button>
       </div>
     </div>
@@ -202,23 +200,83 @@ ModalDetailProses.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   product: PropTypes.shape({
-    jam: PropTypes.string.isRequired,
-    tanggal: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    receiving: PropTypes.object.isRequired,
-    deboning: PropTypes.object.isRequired,
-    wash: PropTypes.object.isRequired,
-    meat_spr: PropTypes.object.isRequired,
-    leaching: PropTypes.object.isRequired,
-    refinery: PropTypes.object.isRequired,
-    mixing: PropTypes.object.isRequired,
-    forming: PropTypes.object.isRequired,
-    freezing: PropTypes.object.isRequired,
-    packing: PropTypes.object.isRequired,
-    storing: PropTypes.object.isRequired,
-    stuffing: PropTypes.object.isRequired,
-    remark: PropTypes.string.isRequired,
+    receiving: PropTypes.shape({
+      organoleptik: PropTypes.string,
+      thr: PropTypes.string,
+      rej: PropTypes.string,
+    }),
+    deboning: PropTypes.shape({
+      dfish: PropTypes.string,
+    }),
+    wash: PropTypes.shape({
+      tpwash: PropTypes.string,
+    }),
+    meat_spr: PropTypes.shape({
+      tpspr: PropTypes.string,
+    }),
+    leaching: PropTypes.shape({
+      ph: PropTypes.string,
+      tpl: PropTypes.string,
+    }),
+    refinery: PropTypes.shape({
+      tpr: PropTypes.string,
+    }),
+    mixing: PropTypes.shape({
+      tpm: PropTypes.string,
+      bds: PropTypes.string,
+      bdc: PropTypes.string,
+    }),
+    forming: PropTypes.shape({
+      mois: PropTypes.string,
+      top: PropTypes.string,
+      rem: PropTypes.string,
+    }),
+    freezing: PropTypes.shape({
+      tpcf: PropTypes.string,
+      tpf: PropTypes.string,
+    }),
+    packing: PropTypes.shape({
+      mtl: PropTypes.string,
+      mir: PropTypes.string,
+      leb: PropTypes.string,
+    }),
+    storing: PropTypes.shape({
+      atr: PropTypes.string,
+      tcsr1: PropTypes.string,
+      tcsr2: PropTypes.string,
+      cond: PropTypes.string,
+    }),
+    stuffing: PropTypes.shape({
+      conchek: PropTypes.string,
+      quality: PropTypes.string,
+      brok: PropTypes.string,
+    }),
+    remark: PropTypes.string,
+    tanggal: PropTypes.string,
+    jam: PropTypes.string,
+    name: PropTypes.string,
   }),
+};
+
+ModalDetailProses.defaultProps = {
+  product: {
+    receiving: {},
+    deboning: {},
+    wash: {},
+    meat_spr: {},
+    leaching: {},
+    refinery: {},
+    mixing: {},
+    forming: {},
+    freezing: {},
+    packing: {},
+    storing: {},
+    stuffing: {},
+    remark: '',
+    tanggal: '',
+    jam: '',
+    name: '',
+  },
 };
 
 export default ModalDetailProses;

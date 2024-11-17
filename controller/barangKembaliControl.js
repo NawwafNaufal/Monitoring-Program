@@ -49,11 +49,18 @@ const patchProdukControl = async(req,res) => {
 
 const deleteProdukControl = async(req,res) => {
     const {id} = req.params 
-    const result = await produk.deleteProdukDb(id)
-        res.status(200).json({
-            data : result ,
-            message : `Data id ${id} Berhasil Di Hapus`
-        })
+    if(!id) {
+        res.send("Id Tidak di Temukan")
+    }
+    try {
+        const result = await produk.deleteProdukDb(id)
+            res.status(200).json({
+                data : result ,
+                message : `Data id ${id} Berhasil Di Hapus`
+            })
+    } catch (error) {
+        res.status(400).json(error)
+    }
 }
 
 module.exports = {getProdukControl,postProdukControl,patchProdukControl,deleteProdukControl}

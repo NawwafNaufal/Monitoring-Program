@@ -8,7 +8,8 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
 import { useFetchData } from "../../fitures/FetchBarangKembali";
 import ModalEditBarangKembali from "../modal/edit/ModalEditBarangKembali";
-import ModalHapusBarangKembali from "../modal/hapus/ModalHapusBarangKembali";
+import ModalHapusProduk from "../modal/hapus/ModalHapusBarangKembali";
+import { useDeleteProduct } from "../../fitures/UseDeleteBarangKembali";
 import ModalDetailBarangKembali from "../modal/detail/ModalDetailBarangKembali";
 import ModalImportExcelBarangKembali from "../modal/import excel/ModalImportExcelBarangKembali";
 import { Tooltip } from "react-tooltip";
@@ -21,11 +22,13 @@ const TableBarangKembali = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   const [importModalOpen, setImportModalOpen] = useState(false);
 
-  const { data = [] } = useFetchData();
+  const deleteProduct = useDeleteProduct();
+
+  const { data = [], refetch: refetchProducts } = useFetchData();
 
   const handleImportExcel = (file) => {
     console.log("File Excel yang diimpor:", file);
@@ -42,6 +45,89 @@ const TableBarangKembali = () => {
     });
   };
 
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const currentData = data.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+  
+  const handleDelete = async (productId) => {
+    try {
+      await deleteProduct.mutateAsync(productId);
+      setDeleteModalOpen(false);
+      refetchProducts(); 
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Gagal menghapus produk. Silakan coba lagi.');
+    }
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  const openEditModal = (product) => {
+    setSelectedProduct(product);
+    setEditModalOpen(true);
+  };
+
+  const openDeleteModal = (product) => {
+    setSelectedProduct(product);
+    setDeleteModalOpen(true);
+  };
+
+
+  const handleEditSave = (updatedProduct) => {
+    console.log("Produk telah diperbarui:", updatedProduct);
+    toast.success(`${updatedProduct.name} berhasil diperbarui!`, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      className: "bg-zinc-900 text-white",
+      bodyClassName: "flex items-center",
+    });
+    setEditModalOpen(false);
+  };
+
+  const openDetailModal = (product) => {
+    if (product?.id) {
+      setSelectedId(product.id);
+      setDetailModalOpen(true);
+    } else {
+      console.error("Product ID is missing");
+      toast.error("Error: Unable to load product details", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        className: "bg-zinc-900 text-white",
+      });
+    }
+  };
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(data);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Barang Kembali");
+    XLSX.writeFile(workbook, "Data_Barang_Kembali.xlsx");
+    toast.success("Data berhasil diekspor ke Excel!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      className: "bg-zinc-900 text-white",
+      bodyClassName: "flex items-center",
+    });
+  };
   const renderData = () => {
     if (!data || data.length === 0) {
       return (
@@ -93,80 +179,6 @@ const TableBarangKembali = () => {
           </td>
         </tr>
       );
-    });
-  };
-
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const currentData = data.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
-
-  const openEditModal = (product) => {
-    setSelectedProduct(product);
-    setEditModalOpen(true);
-  };
-
-  const openDeleteModal = (product) => {
-    setSelectedProduct(product);
-    setDeleteModalOpen(true);
-  };
-
-  const openDetailModal = (product) => {
-    setSelectedDetailProduct(product);
-    setDetailModalOpen(true);
-  };
-
-  const handleEditSave = (updatedProduct) => {
-    console.log("Produk telah diperbarui:", updatedProduct);
-    toast.success(`${updatedProduct.name} berhasil diperbarui!`, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      className: "bg-zinc-900 text-white",
-      bodyClassName: "flex items-center",
-    });
-    setEditModalOpen(false);
-  };
-
-  const handleDelete = () => {
-    console.log("Produk telah dihapus:", selectedProduct);
-    toast.success(`${selectedProduct.name} berhasil dihapus!`, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      className: "bg-zinc-900 text-white",
-      bodyClassName: "flex items-center",
-    });
-    setDeleteModalOpen(false);
-  };
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Data Barang Kembali");
-    XLSX.writeFile(workbook, "Data_Barang_Kembali.xlsx");
-    toast.success("Data berhasil diekspor ke Excel!", {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      className: "bg-zinc-900 text-white",
-      bodyClassName: "flex items-center",
     });
   };
   return (
@@ -239,21 +251,21 @@ const TableBarangKembali = () => {
           onSave={handleEditSave}
         />
       )}
-      {selectedProduct && (
-        <ModalHapusBarangKembali
+    {selectedProduct && (
+        <ModalHapusProduk
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           product={selectedProduct}
-          onDelete={handleDelete}
+          onDelete={() => handleDelete(selectedProduct.id)}
         />
       )}
-      {selectedDetailProduct && (
-        <ModalDetailBarangKembali
-          isOpen={detailModalOpen}
-          onClose={() => setDetailModalOpen(false)}
-          product={selectedDetailProduct}
-        />
-      )}
+          {selectedId && (
+  <ModalDetailBarangKembali
+    isOpen={detailModalOpen}
+    onClose={() => setDetailModalOpen(false)}
+    id={selectedId} 
+  />
+)}
       <ModalImportExcelBarangKembali
         isOpen={importModalOpen}
         onClose={() => setImportModalOpen(false)}

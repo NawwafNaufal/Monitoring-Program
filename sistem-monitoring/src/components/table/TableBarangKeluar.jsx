@@ -24,7 +24,7 @@ const TableBarangKeluar = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [detailModalOpen, setDetailModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [selectedDetailProduct, setSelectedDetailProduct] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [processingItems, setProcessingItems] = useState({});
@@ -136,7 +136,6 @@ const TableBarangKeluar = () => {
   };
 
   const filteredData = data.filter(item => {
-    // Safely check if the properties exist and are strings
     const id_produk = item?.id_produk?.toString().toLowerCase() || '';
     const keterangan = item?.keterangan?.toString().toLowerCase() || '';
     const searchTermLower = searchTerm.toLowerCase();
@@ -161,16 +160,30 @@ const TableBarangKeluar = () => {
   };
 
   const openDeleteModal = (product) => {
+    if (!product?.id) {
+      toast.error("Tidak dapat menghapus data: ID tidak ditemukan");
+      return;
+    }
     setSelectedProduct(product);
     setDeleteModalOpen(true);
   };
 
   const openDetailModal = (product) => {
     if (product?.id) {
-      setSelectedDetailProduct(product);
+      setSelectedId(product.id);
       setDetailModalOpen(true);
     } else {
       console.error("Product ID is missing");
+      toast.error("Error: Unable to load product details", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        className: "bg-zinc-900 text-white",
+      });
     }
   };
 
@@ -190,21 +203,23 @@ const TableBarangKeluar = () => {
     setEditModalOpen(false);
   };
 
-  const handleDelete = () => {
-    console.log("Data telah dihapus:", selectedProduct);
-    toast.success(`${selectedProduct.name} Berhasil Dihapus!`, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      className: "bg-zinc-900 text-white",
-      bodyClassName: "flex items-center",
-    });
-    setDeleteModalOpen(false);
+  const handleDelete = async () => {
+    if (!selectedProduct?.id) {
+      toast.error("Tidak dapat menghapus data: ID tidak ditemukan");
+      return;
+    }
+
+    try {
+      await deleteBarangKeluar(selectedProduct.id);
+      
+      setDeleteModalOpen(false);
+      setSelectedProduct(null);
+      
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
   };
+
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -264,13 +279,13 @@ const TableBarangKeluar = () => {
                 <BsTrash className="text-xl" />
               </button>
               <button
-                data-tooltip-id="btnTooltip"
-                data-tooltip-content="Detail"
-                onClick={() => openDetailModal(data)}
-                className="text-blue-600 hover:text-blue-200"
-                aria-label="Detail">
-                <BsCardList className="text-2xl" />
-              </button>
+                    data-tooltip-id="btnTooltip"
+                    data-tooltip-content="Detail"
+                    onClick={() => openDetailModal(data)}
+                    className="text-blue-600 hover:text-blue-200"
+                    aria-label="Detail">
+                    <BsCardList className="text-2xl" />
+                  </button>
             </div>
           </td>
           <td className="py-3 px-6">
@@ -380,7 +395,7 @@ const TableBarangKeluar = () => {
       <ModalDetailBarangKeluar
         isOpen={detailModalOpen}
         onClose={() => setDetailModalOpen(false)}
-        product={selectedDetailProduct}
+        id={selectedId}
       />
       <ModalImportExcelBarangKeluar
         isOpen={importModalOpen}

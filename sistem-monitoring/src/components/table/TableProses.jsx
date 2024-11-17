@@ -10,6 +10,7 @@ import ModalEditProses from "../modal/edit/ModalEditProses";
 import ModalDetailProses from "../modal/detail/ModalDetailProses";
 import ModalImportExcelProses from "../modal/import excel/ModalImportExcelProses";
 import { useFetchData } from "../../fitures/FetchProses";
+import { useDeleteProduct } from "../../fitures/UseDeleteProses";
 import ModalAddProses from "../modal/add/ModalAddProses";
 import ModalHapusProses from "../modal/hapus/ModalHapusProses";
 import { Tooltip } from "react-tooltip";
@@ -25,9 +26,10 @@ const TableInputProses = () => {
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dataProses, setDataProses] = useState([]);
+  const deleteProduct = useDeleteProduct();
 
 
-  const { data = [] } = useFetchData();
+  const { data = [],refetch: refetchProducts } = useFetchData();
 
   const handleAddProses = (proses) => {
     console.log("Proses yang diterima dari ModalAddProses: ", proses);
@@ -178,20 +180,15 @@ const TableInputProses = () => {
     });
   };
 
-  const handleDelete = () => {
-    console.log("Produk telah dihapus:", selectedProduct);
-    toast.success(`${selectedProduct.name} Berhasil Dihapus!`, {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      className: "bg-zinc-900 text-white",
-      bodyClassName: "flex items-center",
-    });
-    setDeleteModalOpen(false);
+  const handleDelete = async (productId) => {
+    try {
+      await deleteProduct.mutateAsync(productId);
+      setDeleteModalOpen(false);
+      refetchProducts(); 
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Gagal menghapus produk. Silakan coba lagi.');
+    }
   };
 
   const exportToExcel = () => {
@@ -338,10 +335,10 @@ const TableInputProses = () => {
       )}
       {selectedProduct && (
         <ModalHapusProses
-          isOpen={deleteModalOpen}
-          onClose={() => setDeleteModalOpen(false)}
-          product={selectedProduct}
-          onDelete={handleDelete}
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        product={selectedProduct}
+        onDelete={() => handleDelete(selectedProduct.id)}
         />
       )}
       {selectedDetailProduct && (

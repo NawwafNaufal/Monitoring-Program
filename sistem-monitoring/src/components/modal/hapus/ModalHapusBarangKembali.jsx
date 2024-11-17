@@ -1,29 +1,31 @@
 import PropTypes from "prop-types";
 
 const ModalHapusBarangKembali = ({ isOpen, onClose, product, onDelete }) => {
-  if (!isOpen || !product) return null; // Pastikan modal hanya dirender jika isOpen true dan product tersedia
+  if (!isOpen) return null;
+
+  const handleDelete = () => {
+    onDelete();
+    onClose();
+  };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div
-        className="fixed inset-0 bg-black opacity-50"
-        onClick={onClose}></div>
-      <div className="bg-zinc-900 rounded-lg p-6 z-50 w-full max-w-lg">
-        <h2 className="text-lg font-bold mb-4 text-zinc-100">
-          Hapus Barang Kembali
-        </h2>
-        <p className="mb-4 text-zinc-100">
-          Apakah Anda yakin ingin menghapus <strong>{product?.name}</strong>?
+    <div className="fixed inset-0 flex items-center justify-center bg-zinc-950 bg-opacity-50 z-50">
+      <div className="bg-zinc-900 rounded-lg p-6 max-w-md w-full mx-4">
+        <h2 className="text-xl font-bold text-zinc-100 mb-4">Hapus Produk</h2>
+        <p className="font-semibold text-zinc-100 mb-6">
+          Apakah Anda yakin ingin menghapus produk `{product.id_product}`?
         </p>
-        <div className="flex justify-end">
+        <div className="flex justify-end items-center gap-3">
           <button
             onClick={onClose}
-            className="mr-2 px-4 py-2 bg-zinc-500 text-zinc-100 font-bold rounded hover:bg-zinc-600">
+            className="bg-zinc-600 text-zinc-100 font-bold py-2 px-4 rounded hover:bg-zinc-700 transition-colors"
+          >
             Batal
           </button>
           <button
-            onClick={onDelete}
-            className="px-4 py-2 bg-red-500 text-zinc-100 font-bold rounded hover:bg-red-600">
+            onClick={handleDelete}
+            className="bg-red-500 text-white font-bold py-2 px-4 rounded hover:bg-red-600 transition-colors"
+          >
             Hapus
           </button>
         </div>
@@ -36,8 +38,9 @@ ModalHapusBarangKembali.propTypes = {
   isOpen: PropTypes.bool.isRequired,
   onClose: PropTypes.func.isRequired,
   product: PropTypes.shape({
-    name: PropTypes.string,
-  }),
+    id: PropTypes.number.isRequired,
+    id_product: PropTypes.string.isRequired,
+  }).isRequired,
   onDelete: PropTypes.func.isRequired,
 };
 

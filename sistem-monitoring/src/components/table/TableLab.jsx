@@ -2,15 +2,15 @@ import { useState } from "react";
 import { BsPencil, BsTrash, BsCardList } from "react-icons/bs";
 import { AiOutlineSearch } from "react-icons/ai";
 import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
-import Pagination from "../pagination/Pagination";
 import { ToastContainer, toast } from "react-toastify";
-// import ModalImportExcelLab from "../modal/import excel/ModalImportExcelLab";
+import Pagination from "../pagination/Pagination";
 import ModalEditLab from "../modal/edit/ModalEditLab";
+import { useDeleteProduct } from "../../fitures/UseDeleteLab";
 import ModalAddLab from "../modal/add/ModalAddLab";
 import ModalHapusLab from "../modal/hapus/ModalHapusLab";
-import ModalDetailLab from "../modal/detail/ModalDetailLab";
 import { useFetchData } from "../../fitures/FetchLab";
 import { Tooltip } from "react-tooltip";
+import ModalDetailHasilLab from "../modal/detail/ModalDetailLab";
 
 const TableLab = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -23,11 +23,10 @@ const TableLab = () => {
     import: false
   });
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const deleteProduct = useDeleteProduct();
   
   const itemsPerPage = 10;
-  const { data: labData = [], isLoading, error } = useFetchData();
-
-  console.log("Lab Data:", labData);  
+  const { data: labData = [], refetch: refetchProducts, isLoading, error } = useFetchData();
 
   const filteredData = labData.filter(item => 
     item.nama_ikan?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -47,6 +46,18 @@ const TableLab = () => {
   const handleModalClose = (modalType) => {
     setModalState(prev => ({ ...prev, [modalType]: false }));
     if (modalType !== 'detail') setSelectedProduct(null);
+  };
+
+  const handleDelete = async (productId) => {
+    try {
+      await deleteProduct.mutateAsync(productId);
+      handleModalClose('delete');
+      refetchProducts();
+      showToast('Produk berhasil dihapus!');
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showToast('Gagal menghapus produk. Silakan coba lagi.', 'error');
+    }
   };
 
   const showToast = (message, type = 'success') => {
@@ -73,10 +84,16 @@ const TableLab = () => {
     handleModalClose('edit');
   };
 
-  const handleDelete = () => {
-    if (!selectedProduct) return;
-    showToast(`${selectedProduct.name} Berhasil Dihapus!`);
-    handleModalClose('delete');
+  const formatTanggal = (tanggal) => {
+    const date = new Date(tanggal);
+    const bulan = [
+      "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+      "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+    ];
+    const hari = date.getDate();
+    const namaBulan = bulan[date.getMonth()];
+    const tahun = date.getFullYear();
+    return `${hari}-${namaBulan}-${tahun}`;
   };
 
   const renderTableRows = () => {
@@ -97,20 +114,7 @@ const TableLab = () => {
         <td colSpan="10" className="text-center py-4">Tidak ada data tersedia</td>
       </tr>
     );
-    function formatTanggal(tanggal) {
-      const date = new Date(tanggal);
-      
-      const bulan = [
-          "Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-          "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-      ];
-      
-      const hari = date.getDate();
-      const namaBulan = bulan[date.getMonth()];
-      const tahun = date.getFullYear();
-      
-      return `${hari}-${namaBulan}-${tahun}`;
-  }
+
     return currentData.map((item, index) => (
       <tr key={item.id}>
         <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
@@ -179,8 +183,7 @@ const TableLab = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <button
-            className="flex items-center px-4 py-2 bg-blue-500 text-zinc-100 font-bold rounded hover:bg-blue-600">
+          <button className="flex items-center px-4 py-2 bg-blue-500 text-zinc-100 font-bold rounded hover:bg-blue-600">
             <PiMicrosoftExcelLogoFill className="mr-2 text-2xl" />
             Convert to Excel
           </button>
@@ -248,23 +251,18 @@ const TableLab = () => {
             onSave={handleEditSave}
           />
           <ModalHapusLab
-            isOpen={modalState.delete}
+            isOpen={modalState.delete} 
             onClose={() => handleModalClose('delete')}
             product={selectedProduct}
-            onDelete={handleDelete}
+            onDelete={() => handleDelete(selectedProduct.id)}
           />
-          <ModalDetailLab
+          <ModalDetailHasilLab
             isOpen={modalState.detail}
             onClose={() => handleModalClose('detail')}
-            product={selectedProduct}
+            id={selectedProduct.id}
           />
         </>
       )}
-      {/* <ModalImportExcelLab
-        isOpen={modalState.import}
-        onClose={() => handleModalClose('import')}
-        onImport={handleImportExcel}
-      /> */}
       <ToastContainer />
     </div>
   );

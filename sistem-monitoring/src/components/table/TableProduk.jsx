@@ -10,6 +10,7 @@ import ModalAddProduk from "../modal/add/ModalAddProduk";
 import { Tooltip } from "react-tooltip";
 import { useFetchData } from "../../fitures/FetchData";
 import { useCreateDatas } from "../../fitures/CreateProduks";
+import { useDeleteProduct } from "../../fitures/UseDeleteProduk";
 import { IoEnterOutline, IoExitOutline } from "react-icons/io5";
 
 const TableProduk = () => {
@@ -22,6 +23,9 @@ const TableProduk = () => {
   const [barangMasuk, setBarangMasuk] = useState([]);
   const [barangKeluar, setBarangKeluar] = useState([]);
 
+  const navigate = useNavigate();
+  const deleteProduct = useDeleteProduct();
+
   const { mutate, refetch } = useCreateDatas({
     onSuccess: () => {
       refetch();
@@ -29,7 +33,18 @@ const TableProduk = () => {
     },
   });
 
-  const { data: datas = [] } = useFetchData();
+  const { data: datas = [], refetch: refetchProducts } = useFetchData();
+
+  const handleDelete = async (productId) => {
+    try {
+      await deleteProduct.mutateAsync(productId);
+      setDeleteModalOpen(false);
+      refetchProducts(); // Refresh the products list
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      toast.error('Gagal menghapus produk. Silakan coba lagi.');
+    }
+  };
 
   const totalPages = Math.ceil((datas?.length || 0) / itemsPerPage);
   
@@ -62,7 +77,6 @@ const TableProduk = () => {
         draggable: true,
         progress: undefined,
         className: "bg-zinc-900 text-white",
-        bodyClassName: "flex items-center",
       });
     } catch (error) {
       toast.error(`Gagal menambahkan data: ${error.message}`);
@@ -76,8 +90,6 @@ const TableProduk = () => {
   const handleBarangKeluar = (product) => {
     handlePostBarangStatus(product.id, "Barang Keluar");
   };
-
-  const navigate = useNavigate();
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -239,6 +251,7 @@ const TableProduk = () => {
           isOpen={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           product={selectedProduct}
+          onDelete={() => handleDelete(selectedProduct.id)}
         />
       )}
 

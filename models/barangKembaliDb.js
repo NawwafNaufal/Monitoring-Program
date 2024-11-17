@@ -1,7 +1,9 @@
 const db = require("../config/connection")
 
 const getProdukDb = () => {
-    const query = "SELECT * FROM barang_kembali JOIN nama_products ON barang_kembali.id_produk = nama_products.id"
+    const query = `SELECT bk.id,np.nama_product,bk.tanggal,bk.kg,bk.komposisi,bk.keterangan,bk.tujuan,bk.penerima_barang
+,bk.gram,bk.cm,bk.js40,bk.impurity,bk.filth,bk.temp,bk.ph,bk.moisture,bk.whitness,bk.grade
+FROM barang_kembali bk JOIN nama_products np ON bk.id_produk = np.id`
         return db.execute(query)
 }
 
@@ -50,7 +52,7 @@ const patchProdukDb = (id_produk,jumlah,tanggal,saldo,kg,komposisi,
 }
 
 const deleteProdukDb = (id) => {
-    const query = `DELETE FROM produk WHERE id = ?`
+    const query = `DELETE FROM barang_kembali WHERE id = ?`
     const value = [id]
         return db.execute(query,value)
 }

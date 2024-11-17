@@ -43,13 +43,25 @@ const patchProdukControl = async(req,res) => {
 
 }
 
-const deleteProdukControl = async(req,res) => {
-    const {id} = req.params 
-    const result = await produk.deleteProdukDb(id)
+const deleteProdukControl = async (req, res) => {
+    let { id } = req.params;
+
+    id = parseInt(id, 10);
+
+    if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid ID format" });
+    }
+
+    try {
+        const result = await produk.deleteProdukDb(id);
         res.status(200).json({
-            data : result ,
-            message : `Data id ${id} Berhasil Di Hapus`
-        })
-}
+            data: result,
+            message: `Data dengan ID ${id} berhasil dihapus`
+        });
+    } catch (error) {
+        console.error("Error deleting product:", error);
+        res.status(500).json({ error: "Error deleting product" });
+    }
+};
 
 module.exports = {getProdukControl,postProdukControl,patchProdukControl,deleteProdukControl}
