@@ -15,7 +15,7 @@ const postProdukDb = (nama_product,kode_barang) => {
 const patchProdukDb = (nama_product,kode_barang,id) => {
     
     const query = `UPDATE nama_products SET nama_product=?,kode_barang=?  WHERE id =?`
-    const value = [nama_product,kode_barang,id]
+    const value = [nama_product || null,kode_barang || null,id]
     return db.execute(query,value)
 }
 

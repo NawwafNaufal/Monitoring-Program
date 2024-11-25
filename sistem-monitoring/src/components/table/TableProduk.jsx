@@ -10,6 +10,7 @@ import ModalAddProduk from "../modal/add/ModalAddProduk";
 import { Tooltip } from "react-tooltip";
 import { useFetchData } from "../../fitures/FetchData";
 import { useCreateDatas } from "../../fitures/CreateProduks";
+import { useUpdateProduct } from "../../fitures/UseUpdateProduk";
 import { useDeleteProduct } from "../../fitures/UseDeleteProduk";
 import { IoEnterOutline, IoExitOutline } from "react-icons/io5";
 
@@ -25,6 +26,7 @@ const TableProduk = () => {
 
   const navigate = useNavigate();
   const deleteProduct = useDeleteProduct();
+  const updateProduct = useUpdateProduct();
 
   const { mutate, refetch } = useCreateDatas({
     onSuccess: () => {
@@ -35,11 +37,24 @@ const TableProduk = () => {
 
   const { data: datas = [], refetch: refetchProducts } = useFetchData();
 
+  const handleUpdate = async (updatedProduct) => {
+    try {
+      console.log("Data yang akan diupdate:", updatedProduct);
+      await updateProduct.mutateAsync(updatedProduct);
+      setEditModalOpen(false);
+      refetchProducts();
+      toast.success('Produk berhasil diperbarui!');
+    } catch (error) {
+      console.error('Error updating product:', error);
+      toast.error('Gagal memperbarui produk. Silakan coba lagi.');
+    }
+  };
+
   const handleDelete = async (productId) => {
     try {
       await deleteProduct.mutateAsync(productId);
       setDeleteModalOpen(false);
-      refetchProducts(); // Refresh the products list
+      refetchProducts();
     } catch (error) {
       console.error('Error deleting product:', error);
       toast.error('Gagal menghapus produk. Silakan coba lagi.');
@@ -96,7 +111,13 @@ const TableProduk = () => {
   };
 
   const openEditModal = (product) => {
-    setSelectedProduct(product);
+    console.log("Selected product for edit:", product); // Debugging
+    setSelectedProduct({
+      id: product.id,
+      nama_product: product.nama_product,
+      kode_barang: product.kode_barang,
+      image_url: product.image_url
+    });
     setEditModalOpen(true);
   };
 
@@ -238,11 +259,15 @@ const TableProduk = () => {
         />
       )}
 
-      {selectedProduct && (
+{selectedProduct && (
         <ModalEditProduk
           isOpen={editModalOpen}
-          onClose={() => setEditModalOpen(false)}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedProduct(null);
+          }}
           product={selectedProduct}
+          onSave={handleUpdate}
         />
       )}
 

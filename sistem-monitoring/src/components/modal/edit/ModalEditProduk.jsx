@@ -1,89 +1,152 @@
-import React from 'react';
-import PropTypes from 'prop-types'; // Import PropTypes
+import { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 
 const ModalEditProduk = ({ isOpen, onClose, product, onSave }) => {
-  const [name, setName] = React.useState(product.name);
-  const [imageFile, setImageFile] = React.useState(null); // State to hold the uploaded file
-  const [kode, setKode] = React.useState(product.kode || ''); // State to hold the product code
+  const [formData, setFormData] = useState({
+    id: '',
+    nama_product: '',
+    kode_barang: '',
+    image: null
+  });
+  const [imagePreview, setImagePreview] = useState(null);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-
-    // Create a new FormData object to handle file upload
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('kode', kode); // Append the product code
-    if (imageFile) {
-      formData.append('img', imageFile); // Append the image file
+  useEffect(() => {
+    if (product) {
+      console.log("Initializing form with product:", product); // Debugging
+      setFormData({
+        id: product.id,
+        nama_product: product.nama_product || '',
+        kode_barang: product.kode_barang || '',
+        image: null
+      });
+      setImagePreview(product.image_url || null);
     }
+  }, [product]);
 
-    console.log('Saving product:', { ...product, name, kode }); // Log the product details being saved
-    onSave({ ...product, name, kode, img: imageFile }); // Save product with new name, code, and image
-    onClose(); // Close the modal after saving
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    console.log(`Updating ${name} with value:`, value); // Debugging
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
-  // Log when the modal opens or closes
-  React.useEffect(() => {
-    if (isOpen) {
-      console.log('Modal opened with product:', product);
-    } else {
-      console.log('Modal closed');
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      console.log("New image selected:", file); // Debugging
+      setFormData(prev => ({
+        ...prev,
+        image: file
+      }));
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
-  }, [isOpen, product]);
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  try {
+    console.log("Form data before submission:", formData);
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('id', formData.id.toString());
+    formDataToSend.append('nama_product', formData.nama_product);
+    formDataToSend.append('kode_barang', formData.kode_barang);
+    
+    if (formData.image) {
+      formDataToSend.append('image', formData.image);
+    }
+
+    console.log("FormData contents:");
+    for (let pair of formDataToSend.entries()) {
+      console.log(pair[0], pair[1]);
+    }
+
+    await onSave(formDataToSend);
+    onClose();
+  } catch (error) {
+    console.error('Error submitting form:', error);
+  }
+};
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-zinc-950 bg-opacity-50">
-      <div className="bg-zinc-900 rounded-lg p-4">
+    <div className="fixed inset-0 flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black opacity-50"></div>
+      <div className="bg-zinc-900 rounded-lg p-6 w-full max-w-md relative z-10">
         <h2 className="text-xl font-bold text-zinc-100 mb-4">Edit Produk</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="text-zinc-100 mb-2 font-bold">Nama Produk</label>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-zinc-100 mb-2 font-bold">
+              Nama Produk
+            </label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                console.log('Name updated:', e.target.value); // Log the updated name
-              }}
-              className="p-2 w-full bg-zinc-100 rounded"
+              name="nama_product"
+              value={formData.nama_product}
+              onChange={handleInputChange}
+              className="w-full p-2 rounded bg-zinc-100 text-zinc-900"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="text-zinc-100 mb-2 font-bold">Kode Produk</label>
+
+          <div>
+            <label className="block text-zinc-100 mb-2 font-bold">
+              Kode Barang
+            </label>
             <input
               type="text"
-              value={kode}
-              onChange={(e) => {
-                setKode(e.target.value);
-                console.log('Kode updated:', e.target.value); // Log the updated code
-              }}
-              className="p-2 w-full bg-zinc-100 rounded"
+              name="kode_barang"
+              value={formData.kode_barang}
+              onChange={handleInputChange}
+              className="w-full p-2 rounded bg-zinc-100 text-zinc-900"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="text-zinc-100 mb-2 font-bold">Upload Foto Produk</label>
+
+          <div>
+            <label className="block text-zinc-100 mb-2 font-bold">
+              Gambar Produk
+            </label>
             <input
               type="file"
-              accept="image/*" // Accepts only image files
-              onChange={(e) => {
-                const file = e.target.files[0];
-                setImageFile(file);
-                console.log('Image file selected:', file); // Log the selected file
-              }}
-              className="p-2 w-full bg-zinc-100 rounded"
-              required
+              accept="image/*"
+              onChange={handleImageChange}
+              className="w-full p-2 rounded bg-zinc-100 text-zinc-900"
             />
+            {imagePreview && (
+              <div className="mt-2">
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="w-32 h-32 object-cover rounded"
+                />
+              </div>
+            )}
           </div>
-          <div className="btn-action flex justify-end items-center">
-            <button type="submit" className="font-bold bg-green-600 text-zinc-100 py-2 px-4 rounded">
-              Simpan
-            </button>
-            <button type="button" onClick={onClose} className="font-bold bg-zinc-600 text-zinc-100 ml-2 py-2 px-4 rounded">
+
+          <div className="flex justify-end space-x-2 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-zinc-600 text-zinc-100 rounded hover:bg-zinc-700 transition-colors font-bold"
+            >
               Batal
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-green-600 text-zinc-100 rounded hover:bg-green-700 transition-colors font-bold"
+            >
+              Simpan
             </button>
           </div>
         </form>
@@ -92,17 +155,16 @@ const ModalEditProduk = ({ isOpen, onClose, product, onSave }) => {
   );
 };
 
-// Add prop types validation
 ModalEditProduk.propTypes = {
-  isOpen: PropTypes.bool.isRequired,   // isOpen should be a boolean and is required
-  onClose: PropTypes.func.isRequired,   // onClose should be a function and is required
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
   product: PropTypes.shape({
-    id: PropTypes.number.isRequired,     // product.id should be a number and is required
-    name: PropTypes.string.isRequired,   // product.name should be a string and is required
-    kode: PropTypes.string,              // product.kode should be a string but is optional
-    img: PropTypes.string,                // product.img can be a string but is optional
-  }).isRequired,                         // product should be an object and is required
-  onSave: PropTypes.func.isRequired,    // onSave should be a function and is required
+    id: PropTypes.number.isRequired,
+    nama_product: PropTypes.string,
+    kode_barang: PropTypes.string,
+    image_url: PropTypes.string
+  }),
+  onSave: PropTypes.func.isRequired
 };
 
 export default ModalEditProduk;
