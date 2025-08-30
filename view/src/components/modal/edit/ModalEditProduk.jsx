@@ -12,7 +12,7 @@ const ModalEditProduk = ({ isOpen, onClose, product, onSave }) => {
 
   useEffect(() => {
     if (product) {
-      console.log("Initializing form with product:", product); // Debugging
+      console.log("Initializing form with product:", product); // DebuggingN
       setFormData({
         id: product.id,
         nama_product: product.nama_product || '',
